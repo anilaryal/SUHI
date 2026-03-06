@@ -1108,7 +1108,7 @@ with tab_deepdive:
             zmin=cmin, zmax=cmax,
             colorbar=dict(title=zunit,thickness=12,len=0.85,
                           tickfont=dict(color='white',size=9),
-                          titlefont=dict(color='white',size=9)),
+                         # titlefont=dict(color='white',size=9)),
             hovertemplate=f'Lat: %{{y:.3f}}°N<br>Lon: %{{x:.3f}}°E<br>{zunit}: %{{z:.2f}}<extra></extra>'
         ))
         # Annotate city centre
