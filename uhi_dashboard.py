@@ -928,9 +928,9 @@ with tab_overview:
                     color=sub['mean_suhi_day'],
                     colorscale='RdYlBu_r', cmin=1, cmax=9,
                     colorbar=dict(
-                        title="SUHI (°C)", thickness=18, len=0.95, y=0.5,
+                        title=dict(text="SUHI (°C)", font=dict(color='white', size=12)),
+                        thickness=18, len=0.95, y=0.5,
                         tickfont=dict(color='white', size=11),
-                        titlefont=dict(color='white', size=12),
                         tickvals=[1,2,3,4,5,6,7,8,9],
                         ticktext=['1','2','3','4','5','6','7','8','9'],
                     ),
@@ -996,7 +996,7 @@ with tab_overview:
     _season_lbl = {'annual':'Annual','pre_monsoon':'Pre-Monsoon','monsoon':'Monsoon','post_monsoon':'Post-Monsoon','winter':'Winter'}[heat_season]
     fig_heat=go.Figure(data=go.Heatmap(z=pivot.values,x=pivot.columns.tolist(),y=pivot.index.tolist(),
         colorscale='RdYlBu_r',zmid=4,hovertemplate='<b>%{y}</b><br>%{x}: %{z:.2f}°C<extra></extra>',
-        colorbar=dict(title="SUHI (°C)",tickfont=dict(color='white'),titlefont=dict(color='white'))))
+        colorbar=dict(title=dict(text="SUHI (°C)", font=dict(color="white", size=11)),tickfont=dict(color='white'))))
     fig_heat.update_layout(**CHART_BG,height=400,margin=dict(l=100,r=20,t=10,b=30),
                             xaxis=dict(tickangle=-45,tickfont=dict(size=9)),yaxis=dict(tickfont=dict(size=9)),
                             title=dict(text=f"<b>{_season_lbl} SUHI</b> — Top 30 Cities by Intensity",
@@ -1106,9 +1106,8 @@ with tab_deepdive:
             z=z, x=np.round(lons,4), y=np.round(lats,4),
             colorscale=colorscale,
             zmin=cmin, zmax=cmax,
-            colorbar=dict(title=zunit,thickness=12,len=0.85,
-                          tickfont=dict(color='white',size=9),
-                         # titlefont=dict(color='white',size=9)),
+            colorbar=dict(title=dict(text=zunit,font=dict(color='white',size=9)),thickness=12,len=0.85,
+                          tickfont=dict(color='white',size=9)),
             hovertemplate=f'Lat: %{{y:.3f}}°N<br>Lon: %{{x:.3f}}°E<br>{zunit}: %{{z:.2f}}<extra></extra>'
         ))
         # Annotate city centre
@@ -1180,7 +1179,7 @@ with tab_deepdive:
         fig_sc = go.Figure()
         fig_sc.add_trace(go.Scatter(x=xv,y=yv,mode='markers',
             marker=dict(color=yr,colorscale='RdYlBu_r',size=9,opacity=0.85,
-                        colorbar=dict(title='Year',tickfont=dict(color='white'),titlefont=dict(color='white')),
+                        colorbar=dict(title=dict(text='Year',font=dict(color='white')),tickfont=dict(color='white')),
                         line=dict(width=0.5,color='rgba(255,255,255,.3)')),
             hovertemplate='Year: %{marker.color}<br>NDVI: %{x:.3f}<br>SUHI: %{y:.2f}°C<extra></extra>',
             name='Observations'))
@@ -1272,7 +1271,7 @@ with tab_ai:
         fig_nd  = go.Figure()
         fig_nd.add_trace(go.Scatter(x=sc_ndvi,y=sc_shap,mode='markers',
             marker=dict(size=5,color=imp_v,colorscale='YlOrRd',opacity=0.4,
-                        colorbar=dict(title="Impervious\nFraction",x=1.02,tickfont=dict(color='white'),titlefont=dict(color='white'))),
+                        colorbar=dict(title=dict(text="Impervious\nFraction", font=dict(color="white", size=11)),x=1.02,tickfont=dict(color='white'))),
             name='City-year obs',hovertemplate='NDVI:%{x:.2f}<br>SHAP:%{y:.2f}°C<extra></extra>'))
         fig_nd.add_trace(go.Scatter(x=ndvi_range,y=ndvi_shap_sim,mode='lines',
             line=dict(color='white',width=2.5),name='Smoothed trend'))
