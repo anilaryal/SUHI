@@ -581,16 +581,7 @@ with st.spinner("🔄 Loading UHI intelligence data..."):
 # SIDEBAR
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    # ── Logo / branding ──────────────────────────────────────────────────────
-    st.markdown("""
-    <div style="text-align:center;padding:12px 0 16px 0;">
-        <div style="font-size:2.6rem;line-height:1;">🌡️</div>
-        <div style="font-size:1.15rem;font-weight:900;color:#E84855;letter-spacing:1px;">UHI-DST</div>
-        <div style="font-size:.64rem;color:#8892A4;letter-spacing:2px;margin-top:2px;">SOUTH ASIA HEAT INTELLIGENCE</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<div style='margin:10px 0 4px 0;font-size:.78rem;font-weight:900;color:#E0E6F0;text-transform:uppercase;letter-spacing:1.2px;'>🔍 Filters</div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin:4px 0 6px 0;font-size:.78rem;font-weight:900;color:#E0E6F0;text-transform:uppercase;letter-spacing:1.2px;'>🔍 Filters</div>", unsafe_allow_html=True)
 
     selected_countries = st.multiselect(
         "🌍 Countries",
@@ -865,6 +856,59 @@ CHART_BG  = dict(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(20,22,34,0.8)
 GRID_STYLE = dict(gridcolor='rgba(255,255,255,0.07)')
 
 # ─────────────────────────────────────────────────────────────────────────────
+# PLATFORM HEADER BAR (above tabs)
+# ─────────────────────────────────────────────────────────────────────────────
+# Platform header — pure HTML flexbox, responsive on all screen sizes
+st.markdown("""
+<style>
+@media (max-width: 600px) {
+    .uhi-home-label { display: none !important; }
+    .uhi-subtitle   { display: none !important; }
+}
+</style>
+<div style="
+    display:flex;align-items:center;gap:10px;
+    padding:6px 2px 8px 2px;
+    border-bottom:1px solid rgba(232,72,85,.25);
+    margin-bottom:6px;
+">
+    <a href="/" target="_self" style="text-decoration:none;flex-shrink:0;">
+        <div style="
+            display:flex;align-items:center;justify-content:center;gap:4px;
+            background:linear-gradient(135deg,#E84855,#B5303A);
+            border-radius:7px;padding:5px 8px;
+            box-shadow:0 2px 6px rgba(232,72,85,.30);">
+            <span style="font-size:.85rem;line-height:1;">🏠</span>
+            <span class="uhi-home-label" style="font-size:.65rem;font-weight:800;
+                color:white;letter-spacing:.6px;">HOME</span>
+        </div>
+    </a>
+    <div style="width:1px;height:32px;background:rgba(232,72,85,.3);flex-shrink:0;"></div>
+    <div style="flex:1;min-width:0;">
+        <div style="
+            font-size:clamp(2.0rem,3vw,3.0rem);
+            font-weight:900;color:#FFFFFF;
+            line-height:1.15;letter-spacing:.2px;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            Surface Urban Heat Island
+            <span style="
+                display:inline-block;background:#E84855;color:white;
+                font-size:.55rem;font-weight:700;padding:2px 7px;
+                border-radius:20px;margin-left:6px;vertical-align:middle;
+                letter-spacing:1px;">Regional</span>
+        </div>
+        <div class="uhi-subtitle" style="
+            font-size:clamp(.62rem,1.2vw,.76rem);
+            color:#8892A4;margin-top:1px;letter-spacing:.3px;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            South Asia Heat Intelligence &nbsp;·&nbsp;
+            50 cities &nbsp;·&nbsp; 2003–2025 &nbsp;·&nbsp; MODIS / Landsat / ERA5
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ─────────────────────────────────────────────────────────────────────────────
 # MAIN CONTENT TABS
 # ─────────────────────────────────────────────────────────────────────────────
 tab_overview, tab_deepdive, tab_ai, tab_mitigation, tab_policy, tab_compare, tab_chat = st.tabs([
@@ -891,7 +935,7 @@ with tab_overview:
 
     c1,c2,c3,c4,c5 = st.columns(5)
     for col,(val,lbl,delta,dcls) in zip([c1,c2,c3,c4,c5],[
-        (f"{len(trend_filtered)}","Cities Analysed",", ".join(selected_countries[:5]),""),
+        (f"{len(trend_filtered)}","Cities Analysed",", ".join(selected_countries[:3]),""),
         (f"{trend_filtered['mean_suhi_day'].mean():.1f}°C","Mean SUHI Day",f"Range: {trend_filtered['mean_suhi_day'].min():.1f}–{trend_filtered['mean_suhi_day'].max():.1f}°C","delta-up"),
         (f"+{trend_filtered['day_slope_decade'].mean():.2f}°C","Trend / Decade",f"{trend_filtered['significant'].mean()*100:.0f}% cities significant","delta-up"),
         (f"{trend_filtered['pop_M'].sum():.0f}M","Population Exposed","Urban residents at heat risk",""),
@@ -1470,7 +1514,7 @@ with tab_compare:
             hover_name='city',hover_data={'country':True,'pop_M':':.1f','climate':True},size_max=55,
             labels={'mean_suhi_day':'Mean SUHI Day (°C)','day_slope_decade':'Trend (°C/decade)','uhi_type':'UHI Type'})
         fig_bub.update_layout(**CHART_BG,height=420,margin=dict(l=50,r=20,t=10,b=40),
-            xaxis=GRID_STYLE,yaxis=GRID_STYLE,legend=dict(font=dict(size=8),bgcolor='rgba(0,0,0,0.5)'))
+            xaxis=GRID_STYLE,yaxis=GRID_STYLE,legend=dict(font=dict(size=9,color='white'),bgcolor='rgba(0,0,0,0.6)',bordercolor='rgba(255,255,255,0.15)',borderwidth=1))
         st.plotly_chart(fig_bub,use_container_width=True)
     with col_box:
         st.markdown('<div class="section-header"><span class="section-icon">📉</span><span class="section-title">SUHI Distribution by Country</span></div>',unsafe_allow_html=True)
@@ -1532,16 +1576,17 @@ with tab_compare:
         fig_bw = go.Figure()
         for _city, _clr, _meta in [(city_a, _clr_a, _meta_a), (city_b, _clr_b, _meta_b)]:
             _d = _bw_df[_bw_df['city']==_city][_var].dropna()
-            fig_bw.add_trace(go.Box(
+            fig_bw.add_trace(go.Violin(
                 y=_d, name=f"{_city}  ({_meta['country']} \u00b7 {_meta['climate']})",
                 marker_color=_clr,
                 line=dict(color=_clr, width=2),
                 fillcolor=_fill_map[_clr],
-                boxmean='sd',
-                boxpoints='outliers',
-                jitter=0.3,
+                box_visible=True,
+                meanline_visible=True,
+                points='all',
                 pointpos=0,
-                marker=dict(size=4, opacity=0.5, color=_clr),
+                jitter=0.2,
+                marker=dict(size=3, opacity=0.4, color=_clr),
                 hovertemplate=f"<b>{_city}</b><br>{_var}: %{{y:.2f}}\u00b0C<extra></extra>"
             ))
         _trend_a = TRENDS_DF[TRENDS_DF['city']==city_a].iloc[0]
@@ -1600,168 +1645,105 @@ with tab_chat:
 
     st.markdown("""
     <div class="app-header">
-        <div class="app-title">AI Dashboard Assistant <span class="app-badge">POWERED BY CLAUDE</span></div>
-        <div class="app-subtitle">Ask questions about UHI patterns, city comparisons, methodology, or policy recommendations</div>
+        <div class="app-title">AI Dashboard Assistant <span class="app-badge">COMING SOON</span></div>
+        <div class="app-subtitle">An AI assistant powered by Claude will be available here to answer questions about the dashboard</div>
     </div>""", unsafe_allow_html=True)
 
-    # ── Build dashboard context summary for the AI ────────────────────────────
-    _top5 = TRENDS_DF.nlargest(5, 'mean_suhi_day')[['city','country','mean_suhi_day','day_slope_decade']].to_string(index=False)
-    _city_ctx = TRENDS_DF[TRENDS_DF['city']==selected_city].iloc[0]
-    _city_scn = SCENARIOS_DF[SCENARIOS_DF['city']==selected_city].iloc[0]
+    st.markdown("""
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                padding:60px 20px;text-align:center;">
+        <div style="font-size:4rem;margin-bottom:20px;">🚧</div>
+        <div style="font-size:1.5rem;font-weight:800;color:#E0E6F0;margin-bottom:12px;">
+            Under Preparation
+        </div>
+        <div style="font-size:.95rem;color:#8892A4;max-width:500px;line-height:1.8;margin-bottom:28px;">
+            The AI Assistant feature is currently being developed and tested.<br>
+            It will allow you to ask natural language questions about UHI patterns,
+            city comparisons, methodology, and policy recommendations — all grounded
+            in the dashboard data.
+        </div>
+        <div style="background:rgba(69,117,180,.1);border:1px solid rgba(69,117,180,.3);
+                    border-radius:12px;padding:18px 28px;max-width:480px;">
+            <div style="font-size:.82rem;font-weight:700;color:#7EB8F7;margin-bottom:10px;">
+                🔜 Planned capabilities
+            </div>
+            <div style="font-size:.8rem;color:#A8B4C4;line-height:1.9;text-align:left;">
+                • Compare SUHI trends between any two cities<br>
+                • Explain drivers of urban heat for a selected city<br>
+                • Recommend evidence-based mitigation strategies<br>
+                • Answer methodology and data source questions<br>
+                • Generate city-specific heat risk summaries
+            </div>
+        </div>
+    </div>""", unsafe_allow_html=True)
 
-    DASHBOARD_CONTEXT = f"""You are an AI assistant for the UHI-DST (Urban Heat Island Decision Support Tool) dashboard for South Asia.
-You ONLY answer questions based on the dashboard data and UHI/climate science. Politely decline unrelated questions.
-
-DASHBOARD SUMMARY:
-- Coverage: 50 cities across India, Pakistan, Bangladesh, Nepal, Sri Lanka
-- Data period: 2003–2025 (MODIS LST, Landsat 8/9, ERA5-Land, GHSL)
-- Total population exposed: {TRENDS_DF['pop_M'].sum():.0f}M urban residents
-- Mean SUHI (all cities): {TRENDS_DF['mean_suhi_day'].mean():.2f}°C (day), range {TRENDS_DF['mean_suhi_day'].min():.1f}–{TRENDS_DF['mean_suhi_day'].max():.1f}°C
-- Mean warming trend: +{TRENDS_DF['day_slope_decade'].mean():.3f}°C/decade
-- Cities with significant warming trend: {TRENDS_DF['significant'].mean()*100:.0f}%
-
-TOP 5 HOTTEST CITIES:
-{_top5}
-
-CURRENTLY SELECTED CITY: {selected_city} ({_city_ctx['country']})
-- Mean day SUHI: {_city_ctx['mean_suhi_day']:.2f}°C
-- Warming trend: +{_city_ctx['day_slope_decade']:.3f}°C/decade
-- Significant trend: {bool(_city_ctx['significant'])}
-- UHI Type: {_city_ctx['uhi_type']}
-- Population: {_city_ctx['pop_M']:.2f}M
-- Heat Risk Score: {_city_scn['heat_risk_score']}/100
-- Mitigation potential (combined): {_city_scn['reduction_combined']:.2f}°C
-- Estimated lives saved/yr: {_city_scn['deaths_prevented']:,}
-
-METHODOLOGY:
-- SUHI = LST_urban (3km buffer) minus LST_rural (10–30km annular ring)
-- Trend detection: Mann-Kendall test + Theil-Sen slope estimator
-- ML attribution: Random Forest (500 trees) + TreeSHAP
-- Top drivers: Impervious surface (+1.82°C SHAP), NDVI (−1.65°C), Surface albedo (−0.72°C)
-- Critical NDVI cooling threshold: 0.35
-
-UHI TYPOLOGY:
-- Type I: High-Intensity Monsoon-Modulated (high SUHI + Cwa/Aw climate)
-- Type II: Persistent Arid/Semi-Arid (BSh/BWh climate)
-- Type III: Sprawl-Driven Peri-Urban (moderate SUHI, smaller cities)
-- Type IV: Coastal-Moderated Tropical (Af/Am climate, lower SUHI)
-
-Always give concise, evidence-based answers referencing the data above. For policy questions, suggest interventions backed by the SHAP analysis."""
-
-    # ── Session state for chat history ────────────────────────────────────────
-    if 'chat_history' not in st.session_state:
-        st.session_state.chat_history = []
-
-    # ── Chat display area ─────────────────────────────────────────────────────
-    chat_container = st.container()
-    with chat_container:
-        if not st.session_state.chat_history:
-            st.markdown("""
-            <div style="background:rgba(69,117,180,.1);border:1px solid rgba(69,117,180,.3);
-                        border-radius:12px;padding:18px 22px;margin:10px 0 20px 0;">
-                <div style="font-size:.9rem;font-weight:700;color:#7EB8F7;margin-bottom:8px;">
-                    💡 What can I help you with?
-                </div>
-                <div style="font-size:.83rem;color:#A8B4C4;line-height:1.8;">
-                    • <b>City comparisons</b> — "Compare SUHI in Kathmandu vs Delhi"<br>
-                    • <b>Trend analysis</b> — "Which cities are warming fastest?"<br>
-                    • <b>Policy advice</b> — "What interventions work best for arid cities?"<br>
-                    • <b>Methodology</b> — "How is SUHI calculated in this dashboard?"<br>
-                    • <b>Risk assessment</b> — "Which cities face the highest heat risk?"
-                </div>
-            </div>""", unsafe_allow_html=True)
-
-        for msg in st.session_state.chat_history:
-            if msg['role'] == 'user':
-                st.markdown(f"""
-                <div style="display:flex;justify-content:flex-end;margin:8px 0;">
-                    <div style="background:linear-gradient(135deg,#E84855,#B5303A);color:white;
-                                border-radius:14px 14px 2px 14px;padding:10px 16px;
-                                max-width:75%;font-size:.88rem;line-height:1.5;">
-                        {msg['content']}
-                    </div>
-                </div>""", unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div style="display:flex;justify-content:flex-start;margin:8px 0;">
-                    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
-                                border-radius:14px 14px 14px 2px;padding:10px 16px;
-                                max-width:80%;font-size:.88rem;line-height:1.6;color:#E0E6F0;">
-                        <span style="font-size:.7rem;color:#E84855;font-weight:700;">🤖 AI ASSISTANT &nbsp;</span><br>
-                        {msg['content']}
-                    </div>
-                </div>""", unsafe_allow_html=True)
-
-    # ── Input area ────────────────────────────────────────────────────────────
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-    _inp_col, _btn_col = st.columns([5, 1])
-    with _inp_col:
-        user_input = st.text_input(
-            "Ask about the dashboard",
-            placeholder="e.g. What is the SUHI trend for Kathmandu? Which city has highest heat risk?",
-            label_visibility="collapsed",
-            key="ai_chat_input"
-        )
-    with _btn_col:
-        send_btn = st.button("Send ➤", use_container_width=True, type="primary")
-
-    # Quick suggestion chips
-    st.markdown("<div style='margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;'>", unsafe_allow_html=True)
-    _suggestions = [
-        "Which 5 cities have highest SUHI?",
-        f"Summarise heat risk for {selected_city}",
-        "What drives urban heat in South Asia?",
-        "Best mitigation strategies for monsoon cities?",
-    ]
-    _sug_cols = st.columns(len(_suggestions))
-    for _sc, _sug in zip(_sug_cols, _suggestions):
-        if _sc.button(_sug, key=f"sug_{_sug[:20]}", use_container_width=True):
-            user_input = _sug
-            send_btn = True
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # ── Call Anthropic API ────────────────────────────────────────────────────
-    if send_btn and user_input and user_input.strip():
-        st.session_state.chat_history.append({'role': 'user', 'content': user_input.strip()})
-
-        with st.spinner("🤖 Thinking..."):
-            try:
-                import requests, os
-                _api_key = st.secrets.get("ANTHROPIC_API_KEY", os.environ.get("ANTHROPIC_API_KEY", ""))
-                _messages = [{"role": str(m["role"]), "content": str(m["content"])}
-                             for m in st.session_state.chat_history]
-                _payload = {
-                    "model": "claude-haiku-4-5-20251001",
-                    "max_tokens": 1000,
-                    "system": str(DASHBOARD_CONTEXT),
-                    "messages": _messages,
-                }
-                _resp = requests.post(
-                    "https://api.anthropic.com/v1/messages",
-                    headers={
-                        "Content-Type": "application/json",
-                        "x-api-key": _api_key,
-                        "anthropic-version": "2023-06-01",
-                    },
-                    json=_payload,
-                    timeout=30
-                )
-                if _resp.status_code == 200:
-                    _data = _resp.json()
-                    _answer = _data["content"][0]["text"]
-                else:
-                    _answer = f"⚠️ API error {_resp.status_code}: {_resp.json().get('error', {}).get('message', 'Unknown error')}"
-            except Exception as _e:
-                _answer = f"⚠️ Could not reach the AI service: {_e}"
-
-        st.session_state.chat_history.append({'role': 'assistant', 'content': _answer})
-        st.rerun()
-
-    # ── Clear chat ────────────────────────────────────────────────────────────
-    if st.session_state.chat_history:
-        if st.button("🗑 Clear conversation", key="clear_chat"):
-            st.session_state.chat_history = []
-            st.rerun()
+    # ── AI ASSISTANT CODE (under preparation — uncomment to activate) ─────────
+    #
+    # _top5 = TRENDS_DF.nlargest(5, 'mean_suhi_day')[['city','country','mean_suhi_day','day_slope_decade']].to_string(index=False)
+    # _city_ctx = TRENDS_DF[TRENDS_DF['city']==selected_city].iloc[0]
+    # _city_scn = SCENARIOS_DF[SCENARIOS_DF['city']==selected_city].iloc[0]
+    #
+    # DASHBOARD_CONTEXT = f"""You are an AI assistant for the UHI-DST dashboard for South Asia.
+    # You ONLY answer questions based on the dashboard data and UHI/climate science.
+    #
+    # DASHBOARD SUMMARY:
+    # - Coverage: 50 cities across India, Pakistan, Bangladesh, Nepal, Sri Lanka
+    # - Data period: 2003-2025 (MODIS LST, Landsat 8/9, ERA5-Land, GHSL)
+    # - Total population exposed: {TRENDS_DF['pop_M'].sum():.0f}M urban residents
+    # - Mean SUHI (all cities): {TRENDS_DF['mean_suhi_day'].mean():.2f} deg C (day)
+    # - Mean warming trend: +{TRENDS_DF['day_slope_decade'].mean():.3f} deg C/decade
+    # - Cities with significant warming trend: {TRENDS_DF['significant'].mean()*100:.0f}%
+    # TOP 5 HOTTEST CITIES: {_top5}
+    # CURRENTLY SELECTED CITY: {selected_city} ({_city_ctx['country']})
+    # - Mean day SUHI: {_city_ctx['mean_suhi_day']:.2f} deg C
+    # - Warming trend: +{_city_ctx['day_slope_decade']:.3f} deg C/decade
+    # - UHI Type: {_city_ctx['uhi_type']}
+    # - Heat Risk Score: {_city_scn['heat_risk_score']}/100
+    # - Mitigation potential: {_city_scn['reduction_combined']:.2f} deg C
+    # """
+    #
+    # if 'chat_history' not in st.session_state:
+    #     st.session_state.chat_history = []
+    #
+    # for msg in st.session_state.chat_history:
+    #     if msg['role'] == 'user':
+    #         st.markdown(f'<div style="text-align:right">{msg["content"]}</div>', unsafe_allow_html=True)
+    #     else:
+    #         st.markdown(msg['content'])
+    #
+    # _inp_col, _btn_col = st.columns([5, 1])
+    # with _inp_col:
+    #     user_input = st.text_input("Ask about the dashboard", label_visibility="collapsed", key="ai_chat_input")
+    # with _btn_col:
+    #     send_btn = st.button("Send", use_container_width=True, type="primary")
+    #
+    # if send_btn and user_input and user_input.strip():
+    #     st.session_state.chat_history.append({'role': 'user', 'content': user_input.strip()})
+    #     try:
+    #         import requests, os
+    #         _api_key = st.secrets.get("ANTHROPIC_API_KEY", os.environ.get("ANTHROPIC_API_KEY", ""))
+    #         _messages = [{"role": str(m["role"]), "content": str(m["content"])}
+    #                      for m in st.session_state.chat_history]
+    #         _resp = requests.post(
+    #             "https://api.anthropic.com/v1/messages",
+    #             headers={"Content-Type": "application/json",
+    #                      "x-api-key": _api_key,
+    #                      "anthropic-version": "2023-06-01"},
+    #             json={"model": "claude-haiku-4-5-20251001", "max_tokens": 1000,
+    #                   "system": str(DASHBOARD_CONTEXT), "messages": _messages},
+    #             timeout=30
+    #         )
+    #         _answer = _resp.json()["content"][0]["text"] if _resp.status_code == 200     #             else f"API error {_resp.status_code}"
+    #     except Exception as _e:
+    #         _answer = f"Could not reach AI service: {_e}"
+    #     st.session_state.chat_history.append({'role': 'assistant', 'content': _answer})
+    #     st.rerun()
+    #
+    # if st.session_state.get('chat_history'):
+    #     if st.button("Clear conversation", key="clear_chat"):
+    #         st.session_state.chat_history = []
+    #         st.rerun()
+    # ── END AI ASSISTANT CODE ─────────────────────────────────────────────────
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FOOTER
