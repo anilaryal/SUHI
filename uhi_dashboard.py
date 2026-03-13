@@ -352,6 +352,8 @@ from scipy import stats as scipy_stats
 @st.cache_resource
 def init_gee():
     """Initialize Google Earth Engine API (one-time only)"""
+    if not _EE_INSTALLED:
+        return False
     try:
         ee.Initialize(project='nepal6510', opt_url='https://earthengine-highvolume.googleapis.com')
         return True
@@ -374,6 +376,7 @@ if not _EE_INSTALLED:
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA LAYER
 # ─────────────────────────────────────────────────────────────────────────────
+@st.cache_data(show_spinner=False)
 def load_data_synthetic():
     """Original synthetic data function (fallback when GEE unavailable)"""
     cities = pd.DataFrame([
@@ -535,7 +538,6 @@ def load_data_synthetic():
 
 
 @st.cache_data(show_spinner=False)
-
 def load_data_from_gee():
     """
     Fetch real remote sensing data from Google Earth Engine.
