@@ -352,32 +352,44 @@ from scipy import stats as scipy_stats
 @st.cache_resource
 def init_gee():
     """
-    Initialize GEE using one of three methods (tried in order):
+    Initialize GEE using one of two methods (tried in order):
       1. Streamlit Secrets service account JSON  ← works on Streamlit Cloud
-      2. Local credentials file (~/.config/earthengine/credentials)  ← works locally
-      3. Graceful fallback to synthetic data — no crash
+      2. Local credentials file                  ← works on developer machine
     """
     if not _EE_INSTALLED:
         return False
 
+    import json
+
     # ── Method 1: Service account from Streamlit Secrets ─────────────────────
     try:
-        import json
         sa = st.secrets.get("gee_service_account", None)
-        if sa:
-            sa_dict = dict(sa)
+        if sa is not None:
+            # st.secrets returns an AttrDict — convert every value to plain str
+            sa_dict = {k: str(v) for k, v in sa.items()}
+
+            # Write a temp JSON file — most reliable way across ee-api versions
+            import tempfile, os
+            with tempfile.NamedTemporaryFile(
+                mode='w', suffix='.json', delete=False
+            ) as tmp:
+                json.dump(sa_dict, tmp)
+                tmp_path = tmp.name
+
             credentials = ee.ServiceAccountCredentials(
                 email=sa_dict["client_email"],
-                key_data=json.dumps(sa_dict)
+                key_file=tmp_path
             )
+            os.unlink(tmp_path)   # delete immediately after use
+
             ee.Initialize(
-                credentials,
-                project='nepal6510',
+                credentials=credentials,
+                project=sa_dict.get("project_id", "nepal6510"),
                 opt_url='https://earthengine-highvolume.googleapis.com'
             )
             return True
-    except Exception:
-        pass  # fall through to next method
+    except Exception as e1:
+        st.warning(f"⚠️ GEE Secrets auth failed: {e1}")
 
     # ── Method 2: Local credentials (developer machine) ───────────────────────
     try:
@@ -386,13 +398,29 @@ def init_gee():
             opt_url='https://earthengine-highvolume.googleapis.com'
         )
         return True
-    except Exception:
-        pass
+    except Exception as e2:
+        st.warning(f"⚠️ GEE local auth failed: {e2}")
 
-    # ── Method 3: Graceful failure — dashboard still works with synthetic data
-    st.warning("⚠️ GEE not authenticated — showing synthetic data. "
-               "Add service account credentials in Streamlit Secrets to enable live satellite data.")
+    st.info("Dashboard running with synthetic data. "
+            "Ensure the service account is registered at earthengine.google.com.")
     return False
+
+
+# ── GEE DEBUG (remove after authentication is confirmed working) ─────────────
+with st.expander("🔧 GEE Debug Info (remove after fix)", expanded=False):
+    st.write("**_EE_INSTALLED:**", _EE_INSTALLED)
+    try:
+        sa = st.secrets.get("gee_service_account", None)
+        if sa is None:
+            st.error("❌ Secret 'gee_service_account' NOT FOUND in Streamlit Secrets")
+        else:
+            sa_dict = {k: str(v) for k, v in sa.items()}
+            st.success("✅ Secret found")
+            st.write("**client_email:**", sa_dict.get("client_email", "MISSING"))
+            st.write("**project_id:**", sa_dict.get("project_id", "MISSING"))
+            st.write("**private_key starts with:**", sa_dict.get("private_key","")[:40])
+    except Exception as dbg_e:
+        st.error(f"❌ Secret read error: {dbg_e}")
 
 gee_ready = init_gee()
 
