@@ -351,21 +351,48 @@ from scipy import stats as scipy_stats
 
 @st.cache_resource
 def init_gee():
-    """Initialize Google Earth Engine API (one-time only)"""
+    """
+    Initialize GEE using one of three methods (tried in order):
+      1. Streamlit Secrets service account JSON  ← works on Streamlit Cloud
+      2. Local credentials file (~/.config/earthengine/credentials)  ← works locally
+      3. Graceful fallback to synthetic data — no crash
+    """
     if not _EE_INSTALLED:
         return False
+
+    # ── Method 1: Service account from Streamlit Secrets ─────────────────────
     try:
-        ee.Initialize(project='nepal6510', opt_url='https://earthengine-highvolume.googleapis.com')
-        return True
-    except Exception as e:
-        try:
-            ee.Authenticate()
-            ee.Initialize()
+        import json
+        sa = st.secrets.get("gee_service_account", None)
+        if sa:
+            sa_dict = dict(sa)
+            credentials = ee.ServiceAccountCredentials(
+                email=sa_dict["client_email"],
+                key_data=json.dumps(sa_dict)
+            )
+            ee.Initialize(
+                credentials,
+                project='nepal6510',
+                opt_url='https://earthengine-highvolume.googleapis.com'
+            )
             return True
-        except Exception as auth_error:
-            st.warning(f"⚠️ GEE Authentication failed: {str(auth_error)[:100]}")
-            st.info("👉 Visit https://code.earthengine.google.com/ to set up credentials, then run: earthengine authenticate")
-            return False
+    except Exception:
+        pass  # fall through to next method
+
+    # ── Method 2: Local credentials (developer machine) ───────────────────────
+    try:
+        ee.Initialize(
+            project='nepal6510',
+            opt_url='https://earthengine-highvolume.googleapis.com'
+        )
+        return True
+    except Exception:
+        pass
+
+    # ── Method 3: Graceful failure — dashboard still works with synthetic data
+    st.warning("⚠️ GEE not authenticated — showing synthetic data. "
+               "Add service account credentials in Streamlit Secrets to enable live satellite data.")
+    return False
 
 gee_ready = init_gee()
 
