@@ -19,8 +19,6 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import warnings
 warnings.filterwarnings('ignore')
-import ee
-# import geemap.eeimage
 from scipy import stats as scipy_stats
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -339,12 +337,23 @@ st.markdown("""
 # GEE AUTHENTICATION & INITIALIZATION
 # ─────────────────────────────────────────────────────────────────────────────
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GOOGLE EARTH ENGINE — optional import, graceful fallback if not installed
+# ─────────────────────────────────────────────────────────────────────────────
+try:
+    import ee
+    _EE_INSTALLED = True
+except ImportError:
+    _EE_INSTALLED = False
+
+from scipy import stats as scipy_stats
+
 @st.cache_resource
 def init_gee():
     """Initialize Google Earth Engine API (one-time only)"""
     try:
-        ee.Initialize(project = 'nepal6510',
-    opt_url = 'https://earthengine-highvolume.googleapis.com')
+        ee.Initialize(project='nepal6510', opt_url='https://earthengine-highvolume.googleapis.com')
         return True
     except Exception as e:
         try:
@@ -358,10 +367,13 @@ def init_gee():
 
 gee_ready = init_gee()
 
+# Guard: if ee not installed, skip GEE entirely
+if not _EE_INSTALLED:
+    gee_ready = False
+
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA LAYER
 # ─────────────────────────────────────────────────────────────────────────────
-@st.cache_data(show_spinner=False)
 def load_data_synthetic():
     """Original synthetic data function (fallback when GEE unavailable)"""
     cities = pd.DataFrame([
@@ -523,6 +535,7 @@ def load_data_synthetic():
 
 
 @st.cache_data(show_spinner=False)
+
 def load_data_from_gee():
     """
     Fetch real remote sensing data from Google Earth Engine.
@@ -785,10 +798,22 @@ def load_data_from_gee():
 
 
 # Alias for backwards compatibility
+
+# ─────────────────────────────────────────────────────────────────────────────
+# load_data() — primary entry point; uses GEE with automatic synthetic fallback
+# ─────────────────────────────────────────────────────────────────────────────
 def load_data():
-    """Main data loading function - uses GEE with synthetic fallback"""
+    """Use GEE if available and authenticated, else fall back to synthetic data."""
+    if not _EE_INSTALLED or not gee_ready:
+        return load_data_synthetic()
     return load_data_from_gee()
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SPATIAL GRID  (physics-based LST / SUHI / NDVI for City Deep-Dive tab)
+# ─────────────────────────────────────────────────────────────────────────────
+@st.cache_data(show_spinner=False)
+def make_spatial_grid(city_name, lat, lon, mean_suhi, climate, pop_M, seed=None):
     """
     Generate a synthetic 60×60 spatial grid of LST, SUHI, and NDVI
     representing the intra-urban distribution for the selected city.
@@ -861,9 +886,7 @@ def load_data():
     return lst, suhi_map, ndvi_map, lats, lons
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# LOAD DATA
-# ─────────────────────────────────────────────────────────────────────────────
+
 with st.spinner("🔄 Loading UHI intelligence data..."):
     CITIES, SUHI_DF, TRENDS_DF, SCENARIOS_DF, SHAP_DF = load_data()
 
