@@ -394,8 +394,8 @@ def init_gee():
     # ── Method 2: Local credentials (developer machine) ───────────────────────
     try:
         ee.Initialize(
-            project='nepal6510',
-            opt_url='https://earthengine-highvolume.googleapis.com'
+            project='nepal6510'#,
+            #opt_url='https://earthengine-highvolume.googleapis.com'
         )
         return True
     except Exception as e2:
