@@ -422,11 +422,11 @@ def init_gee():
 #     except Exception as dbg_e:
 #         st.error(f"❌ Secret read error: {dbg_e}")
 
-# gee_ready = init_gee()
+gee_ready = init_gee()
 
-# # Guard: if ee not installed, skip GEE entirely
-# if not _EE_INSTALLED:
-#     gee_ready = False
+# Guard: if ee not installed, skip GEE entirely
+if not _EE_INSTALLED:
+    gee_ready = False
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA LAYER
