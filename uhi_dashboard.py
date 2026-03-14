@@ -406,27 +406,27 @@ def init_gee():
     return False
 
 
-# ── GEE DEBUG (remove after authentication is confirmed working) ─────────────
-with st.expander("🔧 GEE Debug Info (remove after fix)", expanded=False):
-    st.write("**_EE_INSTALLED:**", _EE_INSTALLED)
-    try:
-        sa = st.secrets.get("gee_service_account", None)
-        if sa is None:
-            st.error("❌ Secret 'gee_service_account' NOT FOUND in Streamlit Secrets")
-        else:
-            sa_dict = {k: str(v) for k, v in sa.items()}
-            st.success("✅ Secret found")
-            st.write("**client_email:**", sa_dict.get("client_email", "MISSING"))
-            st.write("**project_id:**", sa_dict.get("project_id", "MISSING"))
-            st.write("**private_key starts with:**", sa_dict.get("private_key","")[:40])
-    except Exception as dbg_e:
-        st.error(f"❌ Secret read error: {dbg_e}")
+# # ── GEE DEBUG (remove after authentication is confirmed working) ─────────────
+# with st.expander("🔧 GEE Debug Info (remove after fix)", expanded=False):
+#     st.write("**_EE_INSTALLED:**", _EE_INSTALLED)
+#     try:
+#         sa = st.secrets.get("gee_service_account", None)
+#         if sa is None:
+#             st.error("❌ Secret 'gee_service_account' NOT FOUND in Streamlit Secrets")
+#         else:
+#             sa_dict = {k: str(v) for k, v in sa.items()}
+#             st.success("✅ Secret found")
+#             st.write("**client_email:**", sa_dict.get("client_email", "MISSING"))
+#             st.write("**project_id:**", sa_dict.get("project_id", "MISSING"))
+#             st.write("**private_key starts with:**", sa_dict.get("private_key","")[:40])
+#     except Exception as dbg_e:
+#         st.error(f"❌ Secret read error: {dbg_e}")
 
-gee_ready = init_gee()
+# gee_ready = init_gee()
 
-# Guard: if ee not installed, skip GEE entirely
-if not _EE_INSTALLED:
-    gee_ready = False
+# # Guard: if ee not installed, skip GEE entirely
+# if not _EE_INSTALLED:
+#     gee_ready = False
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA LAYER
@@ -436,10 +436,10 @@ def load_data_synthetic():
     """Original synthetic data function (fallback when GEE unavailable)"""
     cities = pd.DataFrame([
         {"city":"Delhi","lat":28.66,"lon":77.21,"country":"India","climate":"Cwa","pop_M":32.0,"region":"North India"},
-        {"city":"Kolkata","lat":22.57,"lon":88.36,"country":"India","climate":"Aw","pop_M":15.0,"region":"East India"}#,
-        # {"city":"Mumbai","lat":19.08,"lon":72.88,"country":"India","climate":"Aw","pop_M":21.0,"region":"West India"},
-        # {"city":"Chennai","lat":13.08,"lon":80.27,"country":"India","climate":"Aw","pop_M":11.0,"region":"South India"},
-        # {"city":"Bengaluru","lat":12.97,"lon":77.59,"country":"India","climate":"Cwa","pop_M":13.5,"region":"South India"},
+        {"city":"Kolkata","lat":22.57,"lon":88.36,"country":"India","climate":"Aw","pop_M":15.0,"region":"East India"},
+        {"city":"Mumbai","lat":19.08,"lon":72.88,"country":"India","climate":"Aw","pop_M":21.0,"region":"West India"},
+        {"city":"Chennai","lat":13.08,"lon":80.27,"country":"India","climate":"Aw","pop_M":11.0,"region":"South India"},
+        {"city":"Bengaluru","lat":12.97,"lon":77.59,"country":"India","climate":"Cwa","pop_M":13.5,"region":"South India"}#,
         # {"city":"Hyderabad","lat":17.38,"lon":78.48,"country":"India","climate":"BSh","pop_M":10.5,"region":"South India"},
         # {"city":"Ahmedabad","lat":23.03,"lon":72.58,"country":"India","climate":"BSh","pop_M":8.0,"region":"West India"},
         # {"city":"Pune","lat":18.52,"lon":73.86,"country":"India","climate":"BSh","pop_M":7.0,"region":"West India"},
@@ -609,10 +609,10 @@ def load_data_from_gee():
     
     cities = pd.DataFrame([
         {"city":"Delhi","lat":28.66,"lon":77.21,"country":"India","climate":"Cwa","pop_M":32.0,"region":"North India"},
-        {"city":"Kolkata","lat":22.57,"lon":88.36,"country":"India","climate":"Aw","pop_M":15.0,"region":"East India"}#,
-        # {"city":"Mumbai","lat":19.08,"lon":72.88,"country":"India","climate":"Aw","pop_M":21.0,"region":"West India"},
-        # {"city":"Chennai","lat":13.08,"lon":80.27,"country":"India","climate":"Aw","pop_M":11.0,"region":"South India"},
-        # {"city":"Bengaluru","lat":12.97,"lon":77.59,"country":"India","climate":"Cwa","pop_M":13.5,"region":"South India"},
+        {"city":"Kolkata","lat":22.57,"lon":88.36,"country":"India","climate":"Aw","pop_M":15.0,"region":"East India"},
+        {"city":"Mumbai","lat":19.08,"lon":72.88,"country":"India","climate":"Aw","pop_M":21.0,"region":"West India"},
+        {"city":"Chennai","lat":13.08,"lon":80.27,"country":"India","climate":"Aw","pop_M":11.0,"region":"South India"},
+        {"city":"Bengaluru","lat":12.97,"lon":77.59,"country":"India","climate":"Cwa","pop_M":13.5,"region":"South India"}#,
         # {"city":"Hyderabad","lat":17.38,"lon":78.48,"country":"India","climate":"BSh","pop_M":10.5,"region":"South India"},
         # {"city":"Ahmedabad","lat":23.03,"lon":72.58,"country":"India","climate":"BSh","pop_M":8.0,"region":"West India"},
         # {"city":"Pune","lat":18.52,"lon":73.86,"country":"India","climate":"BSh","pop_M":7.0,"region":"West India"},
